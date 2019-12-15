@@ -18,8 +18,9 @@ for key in ["version"]:
 setup(name=NAME,
     description = "Python interface to ActoNet",
     install_requires = [
-        "colomoto_jupyter",
         "algorecell_types",
+        "asprin",
+        "colomoto_jupyter",
     ],
     classifiers=[
         "Intended Audience :: Science/Research",

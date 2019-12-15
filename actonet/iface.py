@@ -1,6 +1,8 @@
 
 from .gc import gc_controls
 
+from algorecell_types import *
+
 def v(n):
     return "v{}".format(n)
 def to_n(v):
@@ -16,6 +18,8 @@ def asp_of_condition(state):
 class ActoNet(object):
     def __init__(self, bn):
         # TODO: handle constants
+        assert not bn.constants(), \
+            "Boolean network with constant nodes are not yet supported"
         self.bn = bn
         self.inputs = []
         self.outputs = []
@@ -38,6 +42,29 @@ class ActoNet(object):
     def set_property(self, state):
         self._assert_defined(state)
         self.property = state
+
+    def reprogramming_fixpoints(self, *spec, inputs={}, ignore=[],
+            maxsize=5, **kwspec):
+
+        self.set_input_condition(inputs) # TODO: always necessary?
+        self.set_outputs(ignore)
+        self.set_property(dict(*spec, **kwspec))
+
+        strategies = ReprogrammingStrategies()
+        global_alias = False
+        for c in self.controls(maxcontrol=maxsize):
+            if type(c) is tuple:
+                init = strategies.autoalias("input{}", c[0])
+                p = PermanentPerturbation(c[1])
+                s = FromCondition(init, PermanentPerturbation(pert))
+            else:
+                p = PermanentPerturbation(c)
+                global_alias = True
+                s = FromCondition("input", p) if inputs else FromAny(p)
+            strategies.add(s)
+        if global_alias:
+            strategies.register_alias("input", inputs)
+        return strategies
 
 
     def asp_fixpoint(self):
@@ -98,7 +125,7 @@ class ActoNet(object):
             clauses.append(":- {}.".format(asp_of_condition(self.property)))
         return clauses
 
-    def controls(self, universal=True, existential=True, maxcontrol=2):
+    def controls(self, universal=True, existential=True, maxcontrol=5):
         assert universal or existential, "At least universal or existential should be true"
         if universal:
             has_fixpoint = self.asp_fixpoint()
