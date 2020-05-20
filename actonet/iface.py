@@ -1,7 +1,9 @@
 
-from .gc import gc_controls
+from colomoto.minibn import BooleanNetwork
 
 from algorecell_types import *
+
+from .gc import gc_controls
 
 def v(n):
     return "v{}".format(n)
@@ -16,15 +18,16 @@ def asp_of_condition(state):
     return ", ".join(map(from_cond, sorted(state.items())))
 
 class ActoNet(object):
-    def __init__(self, bn):
+    def __init__(self, bn, inputs={}):
+        bn = BooleanNetwork.auto_cast(bn)
         # TODO: handle constants
         assert not bn.constants(), \
             "Boolean network with constant nodes are not yet supported"
         self.bn = bn
         self.inputs = []
         self.outputs = []
-        self.input_conditions = {}
         self.property = None
+        self.set_input_condition(inputs)
 
     def _assert_defined(self, nodes):
         for n in nodes:
@@ -43,15 +46,15 @@ class ActoNet(object):
         self._assert_defined(state)
         self.property = state
 
-    def reprogramming_fixpoints(self, *spec, inputs={}, ignore=[],
+    def reprogramming_fixpoints(self, *spec, ignore=[],
             maxsize=5, **kwspec):
 
-        self.set_input_condition(inputs) # TODO: always necessary?
         self.set_outputs(ignore)
         self.set_property(dict(*spec, **kwspec))
 
         strategies = ReprogrammingStrategies()
         global_alias = False
+        inputs = self.input_conditions
         for c in self.controls(maxcontrol=maxsize):
             if type(c) is tuple:
                 init = strategies.autoalias("input{}", c[0])
@@ -62,7 +65,7 @@ class ActoNet(object):
                 global_alias = True
                 s = FromCondition("input", p) if inputs else FromAny(p)
             strategies.add(s)
-        if global_alias:
+        if global_alias and inputs:
             strategies.register_alias("input", inputs)
         return strategies
 
