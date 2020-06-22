@@ -36,3 +36,9 @@ Documentation is available at https://pyactonet.readthedocs.io.
 
 Examples can be found at:
 * https://nbviewer.jupyter.org/github/algorecell/pyactonet/tree/master/examples/
+
+## Authors
+
+* Célia Biane
+* Jacques Nicolas
+* [Loïc Paulevé](https://github.com/pauleve)
