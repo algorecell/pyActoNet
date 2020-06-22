@@ -20,7 +20,7 @@ requirements:
 
   run:
     - algorecell_types
-    - aspirin
+    - asprin
     - clingo
     - colomoto_jupyter
     - python
