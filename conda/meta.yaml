@@ -1,0 +1,30 @@
+{% set name = "pyactonet" %}
+{% set version = "9999" %}
+
+package:
+  name: '{{ name|lower }}'
+  version: '{{ version }}'
+
+source:
+  path: ../
+
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record=record.txt
+  noarch: python
+
+requirements:
+  build:
+    - python
+    - setuptools
+
+  run:
+    - algorecell_types
+    - aspirin
+    - clingo
+    - colomoto_jupyter
+    - python
+
+about:
+  home: https://github.com/algorecell/pyActoNet
+  summary: 'Abduction-base control of Boolean networks fixpoints'

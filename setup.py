@@ -1,22 +1,9 @@
 
-import os
-import re
 from setuptools import setup, find_packages
 
-NAME = 'actonet'
-
-META = {}
-META_FILE = os.path.join(NAME, "__init__.py")
-with open(META_FILE) as f:
-    __data = f.read()
-for key in ["version"]:
-    match = re.search(r"^__{0}__ = ['\"]([^'\"]*)['\"]".format(key), __data, re.M)
-    if not match:
-        raise RuntimeError("Unable to find __{meta}__ string.".format(meta=key))
-    META[key] = match.group(1)
-
-setup(name=NAME,
-    description = "Python interface to ActoNet",
+setup(name="actonet",
+    version="9999",
+    description = "Abduction-based control of Boolean networks fixpoints",
     install_requires = [
         "algorecell_types",
         "asprin",
@@ -29,7 +16,6 @@ setup(name=NAME,
     keywords="computational systems biology",
 
     include_package_data = True,
-    packages = find_packages(),
-    **META
+    packages = find_packages()
 )
 

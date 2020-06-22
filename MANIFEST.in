@@ -1,0 +1,5 @@
+prune .github
+prune conda
+prune docs
+prune examples
+exclude .gitignore

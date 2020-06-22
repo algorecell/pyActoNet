@@ -1,3 +1,6 @@
+"""
+TODO
+"""
 
 from colomoto.minibn import BooleanNetwork
 
@@ -17,7 +20,16 @@ def asp_of_condition(state):
         return "{}{}".format(pre, v(n))
     return ", ".join(map(from_cond, sorted(state.items())))
 
+def load(bn, inputs={}):
+    """
+    TODO
+    """
+    return ActoNet(bn, inputs)
+
 class ActoNet(object):
+    """
+    TODO
+    """
     def __init__(self, bn, inputs={}):
         bn = BooleanNetwork.auto_cast(bn)
         # TODO: handle constants
@@ -48,6 +60,9 @@ class ActoNet(object):
 
     def reprogramming_fixpoints(self, *spec, ignore=[],
             maxsize=5, **kwspec):
+        """
+        TODO
+        """
 
         self.set_outputs(ignore)
         self.set_property(dict(*spec, **kwspec))
