@@ -1,5 +1,35 @@
 """
-TODO
+This Python module implements an abduction-based control of fixed points of
+Boolean networks (https://doi.org/10.1109/TCBB.2018.2889102), using Answer-Set
+Programming.
+
+The control predictions can be processed using the `algorecell_types
+<https://github.com/algorecell/algorecell_types>`_ library, which eases the
+display and comparison with other control methods.
+
+Installation instructions at https://github.com/algorecell/pyActoNet.
+
+Examples can be found at:
+    - https://nbviewer.jupyter.org/github/algorecell/pyActoNet/tree/master/examples/
+
+Quick usage:
+
+>>> import actonet
+
+Model loading:
+
+>>> an = actonet.load("model.bnet") # in BoolNet format
+# alternatively, load with biolqm in any format
+>>> lm = biolqm.load("model.zginml") # or any format support by bioLQM
+>>> an = actonet.load(lm)
+
+Reprogramming predictions:
+
+>>> rs = an.reprogramming_fixpoints({"A": 1, "B": 0})
+>>> rs
+
+See ``help(rs)`` for other display methods
+
 """
 
 from colomoto.minibn import BooleanNetwork
@@ -22,19 +52,29 @@ def asp_of_condition(state):
 
 def load(bn, inputs={}):
     """
-    TODO
+    Returns :py:class:`.ActoNet` `(bn, inputs)` object
     """
     return ActoNet(bn, inputs)
 
 class ActoNet(object):
     """
-    TODO
+    Interface for the reprogramming of fixpoints for a Boolean network with
+    optional input conditions.
     """
     def __init__(self, bn, inputs={}):
+        """
+        :param bn: Boolean network in any format supported by
+            ``colomoto.minibn.BooleanNetwork``, which include filename in BoolNet
+            format, and ``biolqm`` or ``ginsim`` objects.
+        :keyword dict[str,int] inputs: value of input (self-activating) nodes
+        """
         bn = BooleanNetwork.auto_cast(bn)
-        # TODO: handle constants
-        assert not bn.constants(), \
-            "Boolean network with constant nodes are not yet supported"
+        constants = bn.constants()
+        if constants:
+            bn = bn.copy()
+            for n, f in constants.items():
+                bn[n] = n
+                inputs[n] = bool(f)
         self.bn = bn
         self.inputs = []
         self.outputs = []
@@ -61,7 +101,24 @@ class ActoNet(object):
     def reprogramming_fixpoints(self, *spec, ignore=[],
             maxsize=5, **kwspec):
         """
-        TODO
+        Compute reprogramming strategies ensuring that all the fixpoints of the
+        perturbed network match with the given specification, and that the
+        perturbed network has at least one fixpoint.
+        Fixpoints are the ones of the underlying Boolean map, and correspond to
+        fixpoints with the (a)synchronous dynamics.
+        The perturbations are permanent, and can change the attractors of the
+        input model.
+
+        :keyword list(str) ignore: Nodes to exclude from perturations
+        :keyword int maxsize: maximum number of simultaneous perturbations
+            (default: ``5``)
+
+        :rtype: `algorecell_types.ReprogrammingStrategies <https://algorecell-types.readthedocs.io/#algorecell_types.ReprogrammingStrategies>`_
+
+        Examples:
+
+        >>> rs = an.reprogramming_to_attractor(A=1, B=0)
+        >>> rs = an.reprogramming_to_attractor({"A": 1, "B": 0})
         """
 
         self.set_outputs(ignore)
